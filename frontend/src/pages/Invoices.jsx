@@ -17,10 +17,10 @@ export default function Invoices() {
   const [loading, setLoading] = useState(true);
 
   const load = () => {
-    api.getAll().then(r => { setItems(r.data || []); setLoading(false); }).catch(() => setLoading(false));
-    customers.getAll().then(r => setCusts(r.data || []));
-    products.getAll().then(r => setProds(r.data.products || []));
-    maintenance.getAll().then(r => setTickets(r.data || []));
+    api.getAll().then(r => { setItems(Array.isArray(r.data) ? r.data : []); setLoading(false); }).catch(() => { setItems([]); setLoading(false); });
+    customers.getAll().then(r => setCusts(Array.isArray(r.data) ? r.data : [])).catch(() => setCusts([]));
+    products.getAll().then(r => setProds(r.data?.products || [])).catch(() => setProds([]));
+    maintenance.getAll().then(r => setTickets(Array.isArray(r.data) ? r.data : [])).catch(() => setTickets([]));
   };
   useEffect(() => { load(); }, []);
 
@@ -61,16 +61,16 @@ export default function Invoices() {
 
   const downloadPdf = (id) => window.open(api.getPdfUrl(id), '_blank');
 
-  const filtered = items.filter(inv =>
+  const filtered = Array.isArray(items) ? items.filter(inv =>
     !search || inv.invoice_number?.includes(search) || inv.customer_name?.includes(search)
-  );
+  ) : [];
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   return (
     <>
       <div className="page-header">
-        <div className="page-title"><h2>الفواتير</h2><p>{items.length} فاتورة</p></div>
+        <div className="page-title"><h2>الفواتير</h2><p>{Array.isArray(items) ? items.length : 0} فاتورة</p></div>
         <button className="btn btn-primary" onClick={openAdd}><Plus size={15} />فاتورة جديدة</button>
       </div>
       <div className="page-body">
