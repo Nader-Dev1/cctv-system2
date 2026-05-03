@@ -23,8 +23,8 @@ export default function Maintenance() {
   const [loading, setLoading] = useState(true);
 
   const load = () => {
-    api.getAll().then(r => { setItems(r.data || []); setLoading(false); }).catch(() => setLoading(false));
-    customers.getAll().then(r => setCusts(r.data || []));
+    api.getAll().then(r => { setItems(Array.isArray(r.data) ? r.data : []); setLoading(false); }).catch(() => { setItems([]); setLoading(false); });
+    customers.getAll().then(r => setCusts(Array.isArray(r.data) ? r.data : [])).catch(() => setCusts([]));
   };
   useEffect(() => { load(); }, []);
 
@@ -46,17 +46,17 @@ export default function Maintenance() {
     try { await api.delete(id); toast('تم الحذف', 'success'); load(); } catch { toast('خطأ', 'error'); }
   };
 
-  const filtered = items.filter(t =>
+  const filtered = Array.isArray(items) ? items.filter(t =>
     (!search || t.ticket_number?.includes(search) || t.customer_name?.includes(search) || t.device_name?.includes(search)) &&
     (!statusFilter || t.status === statusFilter)
-  );
+  ) : [];
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   return (
     <>
       <div className="page-header">
-        <div className="page-title"><h2>إدارة الصيانة</h2><p>{items.filter(t => t.status !== 'done').length} طلب نشط</p></div>
+        <div className="page-title"><h2>إدارة الصيانة</h2><p>{Array.isArray(items) ? items.filter(t => t.status !== 'done').length : 0} طلب نشط</p></div>
         <button className="btn btn-primary" onClick={openAdd}><Plus size={15} />تذكرة جديدة</button>
       </div>
       <div className="page-body">
