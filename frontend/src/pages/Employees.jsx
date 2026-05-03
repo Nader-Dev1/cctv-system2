@@ -18,7 +18,7 @@ export default function Employees() {
   const [attForm, setAttForm] = useState({ date: new Date().toISOString().slice(0,10), check_in: '', check_out: '', notes: '' });
   const [loading, setLoading] = useState(true);
 
-  const load = () => api.getAll().then(r => { setItems(r.data); setLoading(false); });
+  const load = () => api.getAll().then(r => { setItems(r.data || []); setLoading(false); }).catch(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const openAdd = () => { setEditing(null); setForm(empty); setModal(true); };

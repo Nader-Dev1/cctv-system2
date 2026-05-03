@@ -16,7 +16,7 @@ export default function Customers() {
   const [form, setForm] = useState(empty);
   const [loading, setLoading] = useState(true);
 
-  const load = () => api.getAll().then(r => { setItems(r.data); setLoading(false); });
+  const load = () => api.getAll().then(r => { setItems(r.data || []); setLoading(false); }).catch(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const openAdd = () => { setEditing(null); setForm(empty); setModal(true); };

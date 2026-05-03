@@ -11,9 +11,9 @@ export default function Dashboard() {
   }, []);
 
   if (loading) return <div className="loading"><div className="spinner" />جاري التحميل...</div>;
-  if (!data) return null;
+  if (!data || !data.stats) return <div className="loading">لا توجد بيانات</div>;
 
-  const { stats, recentTickets, recentInvoices, lowStockItems } = data;
+  const { stats = {}, recentTickets = [], recentInvoices = [], lowStockItems = [] } = data;
 
   const statCards = [
     { label: 'إجمالي المنتجات', value: stats.totalProducts, icon: Package, color: 'blue', sub: `${stats.lowStockProducts} يحتاج تعبئة` },

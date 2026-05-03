@@ -23,8 +23,8 @@ export default function Maintenance() {
   const [loading, setLoading] = useState(true);
 
   const load = () => {
-    api.getAll().then(r => { setItems(r.data); setLoading(false); });
-    customers.getAll().then(r => setCusts(r.data));
+    api.getAll().then(r => { setItems(r.data || []); setLoading(false); }).catch(() => setLoading(false));
+    customers.getAll().then(r => setCusts(r.data || []));
   };
   useEffect(() => { load(); }, []);
 

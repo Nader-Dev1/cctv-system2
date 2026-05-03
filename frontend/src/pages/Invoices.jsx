@@ -17,10 +17,10 @@ export default function Invoices() {
   const [loading, setLoading] = useState(true);
 
   const load = () => {
-    api.getAll().then(r => { setItems(r.data); setLoading(false); });
-    customers.getAll().then(r => setCusts(r.data));
-    products.getAll().then(r => setProds(r.data.products));
-    maintenance.getAll().then(r => setTickets(r.data));
+    api.getAll().then(r => { setItems(r.data || []); setLoading(false); }).catch(() => setLoading(false));
+    customers.getAll().then(r => setCusts(r.data || []));
+    products.getAll().then(r => setProds(r.data.products || []));
+    maintenance.getAll().then(r => setTickets(r.data || []));
   };
   useEffect(() => { load(); }, []);
 
