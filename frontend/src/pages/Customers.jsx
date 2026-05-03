@@ -16,14 +16,13 @@ export default function Customers() {
   const [form, setForm] = useState(empty);
   const [loading, setLoading] = useState(true);
 
-  const load = () => api.getAll().then(r => { setItems(r.data || []); setLoading(false); }).catch(() => setLoading(false));
+  const load = () => api.getAll().then(r => { setItems(Array.isArray(r.data) ? r.data : []); setLoading(false); }).catch(() => { setItems([]); setLoading(false); });
   useEffect(() => { load(); }, []);
 
   const openAdd = () => { setEditing(null); setForm(empty); setModal(true); };
   const openEdit = (c) => { setEditing(c); setForm({ ...c }); setModal(true); };
   const openView = async (c) => {
-    const r = await api.getOne(c.id);
-    setViewing(r.data); setViewModal(true);
+    try { const r = await api.getOne(c.id); setViewing(r.data); setViewModal(true); } catch {}
   };
 
   const save = async () => {
@@ -41,9 +40,9 @@ export default function Customers() {
     try { await api.delete(id); toast('تم الحذف', 'success'); load(); } catch { toast('حدث خطأ', 'error'); }
   };
 
-  const filtered = items.filter(c =>
+  const filtered = Array.isArray(items) ? items.filter(c =>
     !search || c.name.toLowerCase().includes(search.toLowerCase()) || (c.phone || '').includes(search)
-  );
+  ) : [];
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
@@ -56,7 +55,7 @@ export default function Customers() {
   return (
     <>
       <div className="page-header">
-        <div className="page-title"><h2>إدارة العملاء</h2><p>{items.length} عميل مسجل</p></div>
+        <div className="page-title"><h2>إدارة العملاء</h2><p>{Array.isArray(items) ? items.length : 0} عميل مسجل</p></div>
         <button className="btn btn-primary" onClick={openAdd}><Plus size={15} />إضافة عميل</button>
       </div>
       <div className="page-body">
@@ -100,7 +99,6 @@ export default function Customers() {
         )}
       </div>
 
-      {/* Add/Edit Modal */}
       {modal && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setModal(false)}>
           <div className="modal">
@@ -140,7 +138,6 @@ export default function Customers() {
         </div>
       )}
 
-      {/* View Modal */}
       {viewModal && viewing && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setViewModal(false)}>
           <div className="modal modal-lg">
@@ -153,15 +150,14 @@ export default function Customers() {
                 <div><div className="form-label" style={{ marginBottom: 4 }}>الجوال</div><div>{viewing.phone || '—'}</div></div>
                 <div><div className="form-label" style={{ marginBottom: 4 }}>العنوان</div><div>{viewing.address || '—'}</div></div>
               </div>
-
               <div style={{ marginBottom: 16 }}>
                 <div className="card-title" style={{ marginBottom: 12 }}>سجل الصيانة</div>
-                {viewing.maintenance?.length === 0 ? <p style={{ color: 'var(--text3)', fontSize: 13 }}>لا يوجد سجل صيانة</p> : (
+                {!viewing.maintenance?.length ? <p style={{ color: 'var(--text3)', fontSize: 13 }}>لا يوجد سجل صيانة</p> : (
                   <div className="table-wrap">
                     <table>
                       <thead><tr><th>رقم التذكرة</th><th>الجهاز</th><th>المشكلة</th><th>الحالة</th><th>التكلفة</th></tr></thead>
                       <tbody>
-                        {viewing.maintenance?.map(t => (
+                        {viewing.maintenance.map(t => (
                           <tr key={t.id}>
                             <td>{t.ticket_number}</td>
                             <td>{t.device_name}</td>
